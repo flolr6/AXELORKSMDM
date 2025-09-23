@@ -32,6 +32,7 @@ import com.axelor.apps.sale.service.cart.CartProductService;
 import com.axelor.apps.supplychain.model.AnalyticLineModel;
 import com.axelor.apps.supplychain.service.AnalyticLineModelService;
 import com.axelor.apps.supplychain.service.analytic.AnalyticAttrsSupplychainService;
+import com.axelor.apps.supplychain.service.purchaseorderline.view.PurchaseOrderLineViewServiceSupplychain;
 import com.axelor.i18n.I18n;
 import com.axelor.inject.Beans;
 import com.axelor.rpc.ActionRequest;
@@ -233,6 +234,20 @@ public class PurchaseOrderLineController {
       }
     } catch (Exception e) {
       TraceBackService.trace(response, e, ResponseMessageType.ERROR);
+    }
+  }
+
+  public void updateDeliveryPanelVisibility(ActionRequest request, ActionResponse response) {
+    try {
+      PurchaseOrderLine purchaseOrderLine = request.getContext().asType(PurchaseOrderLine.class);
+
+      Map<String, Map<String, Object>> attrs =
+          Beans.get(PurchaseOrderLineViewServiceSupplychain.class)
+              .hideDeliveryPanel(purchaseOrderLine);
+
+      response.setAttrs(attrs);
+    } catch (Exception e) {
+      TraceBackService.trace(response, e);
     }
   }
 }

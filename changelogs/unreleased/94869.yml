@@ -1,0 +1,3 @@
+---
+title: "Purchase Order Line: Fixed missing Delivery panel for service in PO lines."
+module: axelor-purchase

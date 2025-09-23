@@ -87,6 +87,7 @@
   <action-group name="supplychain-action-purchase-order-line-group-onload">
     <action name="action-group-purchase-purchase-orderline-onload"/>
     <action name="action-purchase-order-line-group-manage-analytic"/>
+    <action name="action-purchase-order-line-method-manage-delivery-panel-visibility"/>
   </action-group>
 
   <action-group
@@ -100,6 +101,7 @@
     <action name="action-group-purchase-purchase-orderline-product-onchange"/>
     <action name="action-purchase-order-line-method-check-tax-line-set"/>
     <action name="action-purchase-order-line-group-manage-analytic"/>
+    <action name="action-purchase-order-line-method-manage-delivery-panel-visibility"/>
   </action-group>
 
   <action-group name="action-purchase-order-line-group-manage-analytic">
@@ -153,6 +155,12 @@
   <action-method name="action-purchase-order-line-method-hide-axis-analytic-account">
     <call class="com.axelor.apps.supplychain.web.PurchaseOrderLineController"
       method="manageAxis"/>
+  </action-method>
+
+  <action-method
+    name="action-purchase-order-line-method-manage-delivery-panel-visibility">
+    <call class="com.axelor.apps.supplychain.web.PurchaseOrderLineController"
+      method="updateDeliveryPanelVisibility"/>
   </action-method>
 
   <action-method

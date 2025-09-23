@@ -1,0 +1,65 @@
+/*
+ * Axelor Business Solutions
+ *
+ * Copyright (C) 2005-2025 Axelor (<http://axelor.com>).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+package com.axelor.apps.supplychain.service.purchaseorderline.view;
+
+import com.axelor.apps.base.db.Company;
+import com.axelor.apps.base.db.Product;
+import com.axelor.apps.base.db.repo.ProductRepository;
+import com.axelor.apps.purchase.db.PurchaseOrderLine;
+import com.axelor.apps.supplychain.db.SupplyChainConfig;
+import com.axelor.auth.AuthUtils;
+import com.google.inject.Singleton;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
+@Singleton
+public class PurchaseOrderLineViewServiceSupplychainImpl
+    implements PurchaseOrderLineViewServiceSupplychain {
+
+  private static final String HIDDEN_ATTR = "hidden";
+
+  @Override
+  public Map<String, Map<String, Object>> hideDeliveryPanel(PurchaseOrderLine purchaseOrderLine) {
+    Map<String, Map<String, Object>> attrs = new HashMap<>();
+    String productTypeSelect =
+        Optional.ofNullable(purchaseOrderLine.getProduct())
+            .map(Product::getProductTypeSelect)
+            .orElse("");
+
+    boolean hidePanels = true;
+    if (productTypeSelect.equals(ProductRepository.PRODUCT_TYPE_STORABLE)) {
+      hidePanels =
+          !Optional.ofNullable(AuthUtils.getUser().getActiveCompany())
+              .map(Company::getSupplyChainConfig)
+              .map(SupplyChainConfig::getHasInSmForStorableProduct)
+              .orElse(false);
+    }
+    if (productTypeSelect.equals(ProductRepository.PRODUCT_TYPE_SERVICE)) {
+      hidePanels =
+          !Optional.ofNullable(AuthUtils.getUser().getActiveCompany())
+              .map(Company::getSupplyChainConfig)
+              .map(SupplyChainConfig::getHasInSmForNonStorableProduct)
+              .orElse(false);
+    }
+
+    attrs.put("deliveryPanel", Map.of(HIDDEN_ATTR, hidePanels));
+    return attrs;
+  }
+}
