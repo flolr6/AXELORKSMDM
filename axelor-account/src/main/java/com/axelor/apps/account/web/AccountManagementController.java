@@ -19,14 +19,18 @@
 package com.axelor.apps.account.web;
 
 import com.axelor.apps.account.db.AccountManagement;
+import com.axelor.apps.account.service.AccountManagementAttrsService;
 import com.axelor.apps.account.service.analytic.AnalyticAttrsService;
 import com.axelor.apps.base.AxelorException;
+import com.axelor.apps.base.db.ProductFamily;
+import com.axelor.apps.base.db.repo.ProductFamilyRepository;
 import com.axelor.apps.base.service.exception.ErrorException;
 import com.axelor.inject.Beans;
 import com.axelor.rpc.ActionRequest;
 import com.axelor.rpc.ActionResponse;
 import com.axelor.rpc.Context;
 import com.google.inject.Singleton;
+import java.util.Map;
 
 @Singleton
 public class AccountManagementController {
@@ -48,5 +52,36 @@ public class AccountManagementController {
                 null,
                 null,
                 false));
+  }
+
+  @ErrorException
+  public void setCompanyDomain(ActionRequest request, ActionResponse response)
+      throws AxelorException {
+    AccountManagement accountManagement = request.getContext().asType(AccountManagement.class);
+    ProductFamily productFamily = accountManagement.getProductFamily();
+
+    if (productFamily == null) {
+      @SuppressWarnings("unchecked")
+      Map<String, Object> parentContext = (Map<String, Object>) request.getContext().get("_parent");
+      if (parentContext != null
+          && "com.axelor.apps.base.db.ProductFamily".equals(parentContext.get("_model"))) {
+        Object idObj = parentContext.get("id");
+        if (idObj != null) {
+          Long productFamilyId;
+          if (idObj instanceof Number) {
+            productFamilyId = ((Number) idObj).longValue();
+          } else {
+            productFamilyId = Long.valueOf(idObj.toString());
+          }
+          productFamily = Beans.get(ProductFamilyRepository.class).find(productFamilyId);
+        }
+      }
+    }
+
+    String domain =
+        Beans.get(AccountManagementAttrsService.class)
+            .getCompanyDomain(accountManagement, productFamily);
+
+    response.setAttr("company", "domain", domain);
   }
 }

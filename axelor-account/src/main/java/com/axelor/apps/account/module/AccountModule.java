@@ -77,6 +77,7 @@ import com.axelor.apps.account.db.repo.ReconcileRepository;
 import com.axelor.apps.account.db.repo.SubrogationReleaseManagementRepository;
 import com.axelor.apps.account.db.repo.SubrogationReleaseRepository;
 import com.axelor.apps.account.service.*;
+import com.axelor.apps.account.service.AccountManagementAttrsService;
 import com.axelor.apps.account.service.accountingsituation.AccountingSituationAttrsService;
 import com.axelor.apps.account.service.accountingsituation.AccountingSituationAttrsServiceImpl;
 import com.axelor.apps.account.service.accountingsituation.AccountingSituationCheckService;
@@ -481,6 +482,8 @@ public class AccountModule extends AxelorModule {
   @Override
   protected void configure() {
     bind(AddressServiceAccountImpl.class);
+
+    bind(AccountManagementAttrsService.class);
 
     bind(AccountManagementServiceImpl.class).to(AccountManagementServiceAccountImpl.class);
 

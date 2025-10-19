@@ -1,0 +1,38 @@
+---
+title: "Account Management: Fixed duplicate company selection for product families"
+module: axelor-base
+developer: |
+  Implemented domain filtering to prevent duplicate AccountManagement records for the same company and ProductFamily combination.
+  
+  Migration script removes duplicate records and adds database constraint on (product_family, company).
+  
+  ```sql
+  -- Migration script for AccountManagement unique constraint
+  -- Removes duplicate records, keeping only the first for each productFamily+company combination
+  
+  -- Create backup table (optional but recommended for safety)
+  CREATE TABLE account_account_management_backup AS 
+  SELECT * FROM account_account_management;
+  
+  -- Identify and remove duplicate records
+  CREATE TEMP TABLE duplicates_to_remove AS
+  SELECT a2.id as id_to_remove
+  FROM account_account_management a1
+  JOIN account_account_management a2 ON (
+      a1.product_family = a2.product_family 
+      AND a1.company = a2.company 
+      AND a1.id < a2.id
+  );
+  
+  -- Delete duplicates (keeping only the first record for each combination)
+  DELETE FROM account_account_management 
+  WHERE id IN (SELECT id_to_remove FROM duplicates_to_remove);
+  
+  -- Clean up temporary table
+  DROP TABLE IF EXISTS duplicates_to_remove;
+  
+  -- Add unique constraint to prevent future duplicates
+  ALTER TABLE account_account_management 
+  ADD CONSTRAINT uk_product_family_company_unique 
+  UNIQUE (product_family, company);
+  
